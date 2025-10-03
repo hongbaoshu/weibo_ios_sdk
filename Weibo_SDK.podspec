@@ -14,19 +14,19 @@ Pod::Spec.new do |s|
   s.source_files = 'libWeiboSDK/*.{h,m}'
   s.resource     = 'libWeiboSDK/WeiboSDK.bundle'
   s.resource_bundles = {'libWeiboSDK'=>['libWeiboSDK/PrivacyInfo.xcprivacy']}
-  s.vendored_libraries  = 'libWeiboSDK/libWeiboSDK.a'
+  s.preserve_paths = "libWeiboSDK/libWeiboSDK.a"
+
   s.frameworks   = 'Photos', 'ImageIO', 'SystemConfiguration', 'CoreText', 'QuartzCore', 'Security', 'UIKit', 'Foundation', 'CoreGraphics','CoreTelephony','WebKit'
   s.libraries = 'sqlite3', 'z'
 
   s.pod_target_xcconfig = {
-    # 为模拟器构建时定义一个宏，用于条件编译
-    "GCC_PREPROCESSOR_DEFINITIONS[sdk=iphonesimulator*]" => "TARGET_IPHONE_SIMULATOR=1",
-    # 为真机构建时定义另一个宏
-    "GCC_PREPROCESSOR_DEFINITIONS[sdk=iphoneos*]" => "TARGET_IPHONE_SIMULATOR=0",
+    # 告诉链接器静态库的路径（关键！否则会找不到libWeiboSDK.a）
+    "LIBRARY_SEARCH_PATHS" => "$(inherited) $(SRCROOT)/libWeiboSDK",
     
-    # 为模拟器构建时移除Weibo_SDK的链接
+    # 真机环境：添加链接参数
+    "OTHER_LDFLAGS[sdk=iphoneos*]" => "$(inherited) -lWeiboSDK",
+    
+    # 模拟器环境：不添加链接参数
     "OTHER_LDFLAGS[sdk=iphonesimulator*]" => "$(inherited)",
-    # 为真机构建时正常链接Weibo_SDK
-    "OTHER_LDFLAGS[sdk=iphoneos*]" => "$(inherited) -lWeiboSDK"
   }
 end
